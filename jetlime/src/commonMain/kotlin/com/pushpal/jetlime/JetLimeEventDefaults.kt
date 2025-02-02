@@ -51,12 +51,12 @@ object JetLimeEventDefaults {
   )
 
   /**
-   * Maximum width allowed to for the additional content composable used in [JetLimeExtendedEvent],
-   * that will be drawn on the left side of the timeline. As the content is thought to have more
+   * Maximum extent allowed to for the additional content composable used in [JetLimeExtendedEvent],
+   * that will be drawn on the left/top side of the timeline. As the content is thought to have more
    * preference than additional content, it is assumed that additional content will be used for
    * drawing ui that will consume relatively lesser space.
    */
-  internal val AdditionalContentMaxWidth = 72.dp
+  internal val AdditionalContentMaxExtent = 72.dp
 
   /**
    * Creates a default [JetLimeEventStyle] object with specified parameters.

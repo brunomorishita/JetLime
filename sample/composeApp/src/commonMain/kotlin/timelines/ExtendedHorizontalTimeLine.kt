@@ -39,10 +39,10 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.pushpal.jetlime.ItemsList
-import com.pushpal.jetlime.JetLimeColumn
 import com.pushpal.jetlime.JetLimeDefaults
 import com.pushpal.jetlime.JetLimeEventDefaults
 import com.pushpal.jetlime.JetLimeExtendedEvent
+import com.pushpal.jetlime.JetLimeRow
 import data.Item
 import data.activityNames
 import data.placeNames
@@ -60,7 +60,7 @@ import timelines.event.placeInfo
 @OptIn(ExperimentalComposeApi::class)
 @ExperimentalAnimationApi
 @Composable
-fun ExtendedVerticalTimeLine(
+fun ExtendedHorizontalTimeLine(
   modifier: Modifier = Modifier,
   showSnackbar: (message: String) -> Unit,
 ) {
@@ -70,10 +70,10 @@ fun ExtendedVerticalTimeLine(
   GenerateDataEffect(items)
 
   Surface(
-    modifier = modifier.fillMaxSize(),
+    modifier = modifier.fillMaxWidth(),
   ) {
-    JetLimeColumn(
-      modifier = Modifier.padding(top = 16.dp, start = 16.dp, end = 16.dp),
+    JetLimeRow(
+      modifier = Modifier.padding(top = 16.dp, bottom = 16.dp, start = 16.dp),
       itemsList = ItemsList(items),
       key = { _, item -> item.id },
       style = JetLimeDefaults.columnStyle(contentDistance = 24.dp),
@@ -137,6 +137,6 @@ private fun GenerateDataEffect(items: SnapshotStateList<Item>) {
 @ExperimentalAnimationApi
 @Preview
 @Composable
-private fun PreviewExtendedVerticalTimeLine() {
-  ExtendedVerticalTimeLine {}
+private fun PreviewExtendedHorizontalTimeLine() {
+  ExtendedHorizontalTimeLine {}
 }

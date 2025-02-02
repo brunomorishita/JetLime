@@ -53,6 +53,7 @@ import timelines.BasicHorizontalTimeLine
 import timelines.BasicVerticalTimeLine
 import timelines.CustomizedHorizontalTimeLine
 import timelines.CustomizedVerticalTimeLine
+import timelines.ExtendedHorizontalTimeLine
 import timelines.ExtendedVerticalTimeLine
 import timelines.VerticalDynamicTimeLine
 
@@ -129,7 +130,12 @@ fun HomeContent(modifier: Modifier = Modifier) {
             }
           }
 
-          4 -> ExtendedVerticalTimeLine { coroutineScope.launch { snackbarState.showSnackbar(it) } }
+          4 -> {
+            Column {
+              ExtendedHorizontalTimeLine { coroutineScope.launch { snackbarState.showSnackbar(it) } }
+              ExtendedVerticalTimeLine { coroutineScope.launch { snackbarState.showSnackbar(it) } }
+            }
+          }
         }
       }
     }

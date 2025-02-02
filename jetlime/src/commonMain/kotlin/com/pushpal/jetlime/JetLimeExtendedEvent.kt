@@ -44,15 +44,15 @@ import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.pushpal.jetlime.JetLimeEventDefaults.AdditionalContentMaxWidth
+import com.pushpal.jetlime.Arrangement.HORIZONTAL
+import com.pushpal.jetlime.Arrangement.VERTICAL
+import com.pushpal.jetlime.JetLimeEventDefaults.AdditionalContentMaxExtent
 
 /**
- * Should only be used with a [JetLimeColumn] for a vertical arrangement of events.
- *
- * Composable function for creating a [JetLimeColumn] event which has 2 slots for content.
- * The main content will be drawn on the right side of the timeline and the additional content
- * will be drawn on the left side of the timeline. The additional content is optional, and has
- * a maximum width constraint defined by the [JetLimeEventDefaults.AdditionalContentMaxWidth].
+ * Composable function for creating a [JetLimeColumn] or [JetLimeRow] event which has 2 slots for content.
+ * The main content will be drawn on the right/top side of the timeline and the additional content
+ * will be drawn on the left/bottom side of the timeline. The additional content is optional, and
+ * has a maximum extent (width/height) constraint defined by the [JetLimeEventDefaults.AdditionalContentMaxExtent].
  *
  * Example usage:
  *
@@ -76,7 +76,7 @@ import com.pushpal.jetlime.JetLimeEventDefaults.AdditionalContentMaxWidth
  * @param modifier The modifier to be applied to the event.
  * @param style The style of the [JetLimeColumn] event, defaulting to [JetLimeEventDefaults.eventStyle].
  * @param additionalContent The optional additional content of the event, placed on the left side of timeline.
- * @param additionalContentMaxWidth The maximum width allowed for [additionalContent]
+ * @param additionalContentMaxExtent The maximum width allowed for [additionalContent]
  * @param content The main content of the event, placed on the right side of timeline.
  */
 @ExperimentalComposeApi
@@ -85,10 +85,52 @@ fun JetLimeExtendedEvent(
   modifier: Modifier = Modifier,
   style: JetLimeEventStyle = JetLimeEventDefaults.eventStyle(EventPosition.END),
   additionalContent: @Composable (BoxScope.() -> Unit) = { },
-  additionalContentMaxWidth: Dp = AdditionalContentMaxWidth,
+  additionalContentMaxExtent: Dp = AdditionalContentMaxExtent,
   content: @Composable () -> Unit,
 ) {
   val jetLimeStyle = LocalJetLimeStyle.current
+
+  when (jetLimeStyle.arrangement) {
+    VERTICAL -> VerticalExtendedEvent(
+      style,
+      jetLimeStyle,
+      modifier,
+      additionalContent,
+      additionalContentMaxExtent,
+      content
+    )
+
+    HORIZONTAL -> HorizontalExtendedEvent(
+      style,
+      jetLimeStyle,
+      modifier,
+      additionalContent,
+      additionalContentMaxExtent,
+      content
+    )
+  }
+}
+
+/**
+ * Composable function for creating a vertical layout for the JetLime extended event.
+ * This composable is used internally for a [JetLimeColumn].
+ *
+ * @param style The style of the [JetLimeEvent].
+ * @param jetLimeStyle The [JetLimeEvent] style configuration.
+ * @param modifier The modifier to be applied to the event.
+ * @param additionalContent The optional additional content of the event, placed on the left side of timeline.
+ * @param additionalContentMaxWidth The maximum width allowed for [additionalContent]
+ * @param content The composable content inside the event.
+ */
+@Composable
+internal fun VerticalExtendedEvent(
+  style: JetLimeEventStyle,
+  jetLimeStyle: JetLimeStyle,
+  modifier: Modifier = Modifier,
+  additionalContent: @Composable (BoxScope.() -> Unit) = { },
+  additionalContentMaxWidth: Dp = AdditionalContentMaxExtent,
+  content: @Composable () -> Unit,
+) {
   val strokeWidth = with(LocalDensity.current) { style.pointStrokeWidth.toPx() }
   val radiusAnimFactor by calculateRadiusAnimFactor(style)
 
@@ -223,6 +265,167 @@ fun JetLimeExtendedEvent(
           color = style.pointStrokeColor,
           radius = radius - strokeWidth / 2,
           center = Offset(x = timelineXOffset, y = yOffset),
+          style = Stroke(width = strokeWidth),
+        )
+      }
+    }
+  }
+}
+
+/**
+ * Composable function for creating a horizontal layout for the JetLime extended event.
+ * This composable is used internally for a [JetLimeRow].
+ *
+ * @param style The style of the [JetLimeEvent].
+ * @param jetLimeStyle The [JetLimeEvent] style configuration.
+ * @param modifier The modifier to be applied to the event.
+ * @param additionalContent The optional additional content of the event, placed on the top side of timeline.
+ * @param additionalContentMaxHeight The maximum height allowed for [additionalContent]
+ * @param content The composable content inside the event.
+ */
+@Composable
+internal fun HorizontalExtendedEvent(
+  style: JetLimeEventStyle,
+  jetLimeStyle: JetLimeStyle,
+  modifier: Modifier = Modifier,
+  additionalContent: @Composable (BoxScope.() -> Unit) = { },
+  additionalContentMaxHeight: Dp = AdditionalContentMaxExtent,
+  content: @Composable () -> Unit,
+) {
+  val strokeWidth = with(LocalDensity.current) { style.pointStrokeWidth.toPx() }
+  val radiusAnimFactor by calculateRadiusAnimFactor(style)
+
+  // BoxWithConstraints provides its own constraints which we can use for layout
+  BoxWithConstraints(modifier = modifier) {
+    // Variable for keeping track of the Y position where the timeline will be drawn
+    var timelineYOffset by remember { mutableFloatStateOf(0f) }
+    // Maximum height for additional content
+    val maxAdditionalContentHeight = with(LocalDensity.current) { additionalContentMaxHeight.toPx() }
+
+    Layout(
+      content = {
+        // Box for main content with optional padding at the bottom
+        Box(
+          modifier = Modifier.padding(
+            end = if (style.position.isNotEnd()) {
+              jetLimeStyle.itemSpacing
+            } else {
+              0.dp
+            },
+          ),
+        ) {
+          content()
+        }
+        // Additional content passed as a composable lambda
+        additionalContent()
+      },
+    ) { measurables, constraints ->
+      // Ensuring that there is at least one child in the layout
+      require(measurables.isNotEmpty()) {
+        "JetLimeExtendedEvent should have at-least one child for content"
+      }
+      // Thickness of the line drawn for the timeline
+      val timelineThickness = jetLimeStyle.lineThickness.toPx()
+      // Distance between the content/additional content and the timeline
+      val contentDistance = jetLimeStyle.contentDistance.toPx()
+
+      // Extracting the first and potentially second child for layout
+      val contentMeasurable = measurables.first()
+      val additionalContentMeasurable = measurables.getOrNull(1)
+
+      // Measuring the additional content if it exists
+      val additionalContentPlaceable = additionalContentMeasurable?.let { measurable ->
+        // Calculating intrinsic height and adjusting it according to the maximum allowed height
+        val intrinsicHeight = measurable.minIntrinsicHeight(constraints.maxWidth)
+        val adjustedMinHeight = intrinsicHeight.coerceAtMost(maxAdditionalContentHeight.toInt())
+        val newConstraints = constraints.copy(
+          minHeight = adjustedMinHeight,
+          maxHeight = maxAdditionalContentHeight.toInt(),
+        )
+        // Measuring the additional content with the new constraints
+        measurable.measure(newConstraints)
+      }
+
+      // Calculating the Y offset for the timeline based on the height of the additional content
+      timelineYOffset = (additionalContentPlaceable?.height?.toFloat() ?: 0f) + contentDistance
+
+      // Calculating the Y offset and height available for the main content
+      val contentYOffset = timelineYOffset + timelineThickness + contentDistance
+      val contentHeight = constraints.maxHeight - contentYOffset
+
+      // Measuring the main content with the calculated height
+      val contentPlaceable = contentMeasurable.measure(
+        constraints.copy(minHeight = 0, maxHeight = contentHeight.toInt()),
+      )
+
+      // Determining the width of the layout based on the measured content
+      val contentWidth = contentPlaceable.width
+      val layoutWidth = additionalContentPlaceable?.let { additional ->
+        maxOf(contentWidth, additional.width)
+      } ?: contentWidth
+
+      // Placing the measured composables in the layout
+      layout(layoutWidth, constraints.maxHeight) {
+        additionalContentPlaceable?.placeRelative(x = 0, y = 0)
+        contentPlaceable.placeRelative(x = 0, y = contentYOffset.toInt())
+      }
+    }
+
+    // Drawing on canvas for additional graphical elements
+    Canvas(modifier = Modifier.matchParentSize()) {
+      val xOffset = style.pointRadius.toPx() * jetLimeStyle.pointStartFactor
+      val radius = style.pointRadius.toPx() * radiusAnimFactor
+
+      if (style.position.isNotEnd()) {
+        drawLine(
+          brush = jetLimeStyle.lineBrush,
+          start = Offset(x = xOffset, y = timelineYOffset),
+          end = Offset(x = this.size.width, y = timelineYOffset),
+          strokeWidth = jetLimeStyle.lineThickness.toPx(),
+          pathEffect = jetLimeStyle.pathEffect,
+        )
+      }
+
+      if (style.pointType.isEmptyOrFilled()) {
+        drawCircle(
+          color = style.pointColor,
+          radius = radius,
+          center = Offset(x = xOffset, y = timelineYOffset),
+        )
+      }
+
+      if (style.pointType.isFilled()) {
+        drawCircle(
+          color = style.pointFillColor,
+          radius = radius - radius * (1 - (style.pointType.fillPercent ?: 1f)),
+          center = Offset(x = xOffset, y = timelineYOffset),
+        )
+      }
+
+      if (style.pointType.isCustom()) {
+        style.pointType.icon?.let { painter ->
+          this.withTransform(
+            transformBlock = {
+              translate(
+                left = timelineYOffset - painter.intrinsicSize.height / 2f,
+                top = xOffset - painter.intrinsicSize.width / 2f,
+              )
+            },
+            drawBlock = {
+              this.drawIntoCanvas {
+                with(painter) {
+                  draw(intrinsicSize)
+                }
+              }
+            },
+          )
+        }
+      }
+      if (strokeWidth > 0f) {
+        drawCircle(
+          color = style.pointStrokeColor,
+          radius = radius - strokeWidth / 2,
+          center = Offset(x = xOffset, y = timelineYOffset),
           style = Stroke(width = strokeWidth),
         )
       }
