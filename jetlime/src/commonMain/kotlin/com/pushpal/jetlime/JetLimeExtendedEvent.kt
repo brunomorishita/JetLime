@@ -37,6 +37,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.drawscope.withTransform
@@ -253,7 +254,8 @@ internal fun VerticalExtendedEvent(
             drawBlock = {
               this.drawIntoCanvas {
                 with(painter) {
-                  draw(intrinsicSize)
+                  val tint = style.pointType.tint?.let { ColorFilter.tint(it) }
+                  draw(intrinsicSize, colorFilter = tint)
                 }
               }
             },
@@ -414,7 +416,8 @@ internal fun HorizontalExtendedEvent(
             drawBlock = {
               this.drawIntoCanvas {
                 with(painter) {
-                  draw(intrinsicSize)
+                  val tint = style.pointType.tint?.let { ColorFilter.tint(it) }
+                  draw(intrinsicSize, colorFilter = tint)
                 }
               }
             },
