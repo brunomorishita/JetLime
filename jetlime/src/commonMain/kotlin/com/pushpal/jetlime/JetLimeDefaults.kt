@@ -101,6 +101,7 @@ object JetLimeDefaults {
    * @param pathEffect the effect applied to the geometry of the timeline to obtain a dashed pattern.
    * @param lineHorizontalAlignment The horizontal alignment of the line in the JetLime component.
    * @param lineVerticalAlignment The vertical alignment of the line in the JetLime component.
+   * @param pointAlignment The point alignment in the JetLime component.
    * @return A [JetLimeStyle] object configured with the given parameters.
    */
   @Composable
@@ -112,6 +113,7 @@ object JetLimeDefaults {
     pathEffect: PathEffect?,
     lineHorizontalAlignment: HorizontalAlignment = TOP,
     lineVerticalAlignment: VerticalAlignment = LEFT,
+    pointAlignment: PointAlignment = PointAlignment.START
   ): JetLimeStyle {
     return JetLimeStyle(
       contentDistance = contentDistance,
@@ -121,6 +123,7 @@ object JetLimeDefaults {
       pathEffect = pathEffect,
       lineHorizontalAlignment = lineHorizontalAlignment,
       lineVerticalAlignment = lineVerticalAlignment,
+      pointAlignment = pointAlignment
     )
   }
 
@@ -133,6 +136,7 @@ object JetLimeDefaults {
    * @param lineBrush The brush used for the line in the JetLime component.
    * @param pathEffect the effect applied to the geometry of the timeline to obtain a dashed pattern.
    * @param lineVerticalAlignment The vertical alignment of the line: [LEFT] or [RIGHT]
+   * @param pointAlignment The point alignment in the JetLime component.
    * @return A [JetLimeStyle] instance configured for column arrangement.
    */
   @Composable
@@ -143,6 +147,7 @@ object JetLimeDefaults {
     lineBrush: Brush = lineSolidBrush(),
     pathEffect: PathEffect? = null,
     lineVerticalAlignment: VerticalAlignment = LEFT,
+    pointAlignment: PointAlignment = PointAlignment.START
   ) = jetLimeStyle(
     contentDistance,
     itemSpacing,
@@ -150,6 +155,7 @@ object JetLimeDefaults {
     lineBrush,
     pathEffect,
     lineVerticalAlignment = lineVerticalAlignment,
+    pointAlignment = pointAlignment
   )
 
   /**
@@ -161,6 +167,7 @@ object JetLimeDefaults {
    * @param lineBrush The brush used for the line in the JetLime component.
    * @param pathEffect the effect applied to the geometry of the timeline to obtain a dashed pattern.
    * @param lineHorizontalAlignment The horizontal alignment of the line: [TOP] or [BOTTOM]
+   * @param pointAlignment The point alignment in the JetLime component.
    * @return A [JetLimeStyle] instance configured for row arrangement.
    */
   @Composable
@@ -171,6 +178,7 @@ object JetLimeDefaults {
     lineBrush: Brush = lineSolidBrush(),
     pathEffect: PathEffect? = null,
     lineHorizontalAlignment: HorizontalAlignment = TOP,
+    pointAlignment: PointAlignment = PointAlignment.START
   ) = jetLimeStyle(
     contentDistance,
     itemSpacing,
@@ -178,5 +186,6 @@ object JetLimeDefaults {
     lineBrush,
     pathEffect,
     lineHorizontalAlignment = lineHorizontalAlignment,
+    pointAlignment = pointAlignment
   )
 }

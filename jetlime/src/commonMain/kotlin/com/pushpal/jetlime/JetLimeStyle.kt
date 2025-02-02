@@ -48,6 +48,7 @@ import com.pushpal.jetlime.Arrangement.VERTICAL
  * @param pathEffect the effect applied to the geometry of the timeline to obtain a dashed pattern.
  * @param lineHorizontalAlignment The horizontal alignment of the line in the JetLime component.
  * @param lineVerticalAlignment The vertical alignment of the line in the JetLime component.
+ * @param pointAlignment The point alignment in the JetLime component.
  */
 @Immutable
 class JetLimeStyle internal constructor(
@@ -58,6 +59,7 @@ class JetLimeStyle internal constructor(
   val pathEffect: PathEffect?,
   val lineHorizontalAlignment: HorizontalAlignment,
   val lineVerticalAlignment: VerticalAlignment,
+  val pointAlignment: PointAlignment
 ) {
 
   internal var arrangement: Arrangement = VERTICAL
@@ -98,7 +100,8 @@ class JetLimeStyle internal constructor(
     if (lineBrush != other.lineBrush) return false
     if (pathEffect != other.pathEffect) return false
     if (lineHorizontalAlignment != other.lineHorizontalAlignment) return false
-    return lineVerticalAlignment == other.lineVerticalAlignment
+    if (lineVerticalAlignment != other.lineVerticalAlignment) return false
+    return pointAlignment == other.pointAlignment
   }
 
   /**
@@ -117,6 +120,7 @@ class JetLimeStyle internal constructor(
     result = 31 * result + pathEffect.hashCode()
     result = 31 * result + lineHorizontalAlignment.hashCode()
     result = 31 * result + lineVerticalAlignment.hashCode()
+    result = 31 * result + pointAlignment.hashCode()
     return result
   }
 }
@@ -146,4 +150,14 @@ enum class HorizontalAlignment {
 enum class VerticalAlignment {
   LEFT,
   RIGHT,
+}
+
+/**
+ * Enum representing the point alignment for [JetLimeColumn] and [JetLimeRow].
+ */
+@Stable
+enum class PointAlignment {
+  START,
+  CENTER,
+  END
 }
