@@ -68,6 +68,17 @@ class EventPosition internal constructor(val name: String) {
   }
 
   /**
+   * A helper function to check if the current position is not the start position.
+   * This can be useful for determining layout or drawing logic based on the position of an event.
+   *
+   * @return `true` if the current position is not the start, `false` otherwise.
+   */
+  @Stable
+  fun isNotStart(): Boolean {
+    return this != START
+  }
+
+  /**
    * A helper function to check if the current position is not the end position.
    * This can be useful for determining layout or drawing logic based on the position of an event.
    *
